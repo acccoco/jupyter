@@ -1,8 +1,13 @@
-# file
+# test file
 test.py
+test.ipynb 
 
-# cache dir
-*/.ipynb_checkpoints
+# jupyter
+.ipynb_checkpoints
+
+# python
+__pycache__
+
 
 # apple
 .DS_Store
