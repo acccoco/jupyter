@@ -1,0 +1,9 @@
+# file
+test.py
+
+# cache dir
+*/.ipynb_checkpoints
+
+# apple
+.DS_Store
+
