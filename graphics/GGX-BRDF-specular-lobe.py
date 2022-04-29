@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def vec(theta, phi):
+def vec(phi, theta):
     """根据方位角生成单位向量"""
-    theta = np.deg2rad(theta)
     phi = np.deg2rad(phi)
-    x = np.sin(phi) * np.cos(theta)
-    y = np.sin(phi) * np.sin(theta)
-    z = np.cos(phi)
+    theta = np.deg2rad(theta)
+    x = np.sin(theta) * np.cos(phi)
+    y = np.sin(theta) * np.sin(phi)
+    z = np.cos(theta)
     return np.array([x, y, z])
 
 
@@ -62,7 +62,7 @@ v_Smith_G = np.vectorize(Smith_G, otypes=[float])
 v_Fresnel_Schlick = np.vectorize(Fresnel_Schlick, otypes=[float])
 
 
-def draw(theta_v, phi_v, alpha):
+def draw(phi_v, theta_v, alpha):
     """
     观察方向的方位角作为参数
     """
@@ -70,7 +70,7 @@ def draw(theta_v, phi_v, alpha):
     ax = fig.add_subplot(1, 1, 1, projection='3d')
 
     # 球坐标系上的方位角
-    v = vec(theta_v, phi_v)
+    v = vec(phi_v, theta_v)
 
     # 计算观察向量 v 和另一个向量的半程向量
     v_half_to_view = np.vectorize(
@@ -83,14 +83,14 @@ def draw(theta_v, phi_v, alpha):
         lambda _: np.rad2deg(np.arccos(v.T @ _)), otypes=[float])   # 这里的运算表示向量点积
 
     # 光线方向的方位角
-    angle_l_n, phi_l = np.meshgrid(
+    phi_l, theta_l = np.meshgrid(
         np.linspace(0, 360, 90), np.linspace(0, 90, 60))
     # 用直角坐标系表示光线的方向
-    x = np.sin(np.deg2rad(phi_l)) * np.cos(np.deg2rad(angle_l_n))
-    y = np.sin(np.deg2rad(phi_l)) * np.sin(np.deg2rad(angle_l_n))
-    z = np.cos(np.deg2rad(phi_l))
+    x = np.sin(np.deg2rad(theta_l)) * np.cos(np.deg2rad(phi_l))
+    y = np.sin(np.deg2rad(theta_l)) * np.sin(np.deg2rad(phi_l))
+    z = np.cos(np.deg2rad(theta_l))
 
-    l = v_vec(angle_l_n, phi_l)                 # 光线方向的向量
+    l = v_vec(phi_l, theta_l)                 # 光线方向的向量
     h = v_half_to_view(l)                       # 观察方向 v 和光线 l 的半程向量
     angle_h_n = v_angle_to_normal(h)            # h 和 n 之间的夹角
     angle_l_n = v_angle_to_normal(l)            # l 和 n 之间的夹角
@@ -104,10 +104,15 @@ def draw(theta_v, phi_v, alpha):
     len_mod = np.sqrt(D * F * G)        # 光线方向的 l 向量提供方程，这个变量提供长度
     ax.plot_surface(x * len_mod, y * len_mod, z *
                     len_mod, cmap=plt.cm.YlGnBu_r)
-
+    ax.set_xlim(0, 3)
+    ax.set_ylim(-1.5, 1.5)
+    ax.set_zlim(0, 3)
+    ax.set_xlabel(r"$x$")
+    ax.set_ylabel(r"$y$")
+    ax.set_zlabel(r"$z$")
     plt.show()
 
 
 if __name__ == "__main__":
     # 绘制 BRDF 的反射波瓣，前两个是观察方向的方位角度（球坐标系），第三个参数是粗糙度相关的 alpha
-    draw(180, 45, 0.2)
+    draw(180, 45, 0.3)
